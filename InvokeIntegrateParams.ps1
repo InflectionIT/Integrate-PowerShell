@@ -1,8 +1,9 @@
 param([string]$firstName, [string]$lastName, [string]$email)
 
 $ruleId = 1356
-$config = Get-Content -Raw -Path "config.json" | ConvertFrom-Json
 
+# Configuration setup
+$config = Get-Content -Raw -Path "config.json" | ConvertFrom-Json
 $headers = New-Object 'System.Collections.Generic.Dictionary[[String],[String]]'
 $headers.Add('IntegrateAuthenticationToken', $config.Token)
 $headers.Add('Content-Type', 'application/json')
@@ -30,13 +31,13 @@ $inputs += [PSCustomObject]@{
     name  = "Email";
     value = $email;
 }
-
 $input = @{
     inputs = $inputs
 }
 
 $json = $input | ConvertTo-Json
 
+# Execute rule and wait for results
 $results = ExecuteRule -ruleId $ruleId -body $json
 if ($results.correlation_id) {
     Write-Host "Your information has been submitted. Waiting for result"

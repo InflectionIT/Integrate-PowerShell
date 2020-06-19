@@ -1,5 +1,6 @@
 $ruleId = 1356
 
+# Configuration setup
 $config = Get-Content -Raw -Path "config.json" | ConvertFrom-Json
 $headers = New-Object 'System.Collections.Generic.Dictionary[[String],[String]]'
 $headers.Add('IntegrateAuthenticationToken', $config.Token)
@@ -14,18 +15,18 @@ function CheckExecutionStatus([string]$corId) {
     return Invoke-RestMethod https://$($config.Server)/api/v1/rules/execution/$corId -SkipCertificateCheck -Method Get -Headers $headers -Body $body
 }
 
+# Get input values
 Clear-Host
 Write-Host "================== Invoke Integrate Rule ==================="
 Write-Host "This script gathers info and invoked an Integrate rule"
 Write-Host "Please answer the following questions"
 Write-Host "============================================================================="
 
-#Get input values
 $firstName = Read-Host "Please enter your first name" 
 $lastName = Read-Host "Please enter your last name"
 $email = Read-Host "Please enter your email address"
 
-#Convert inputs to JSON
+#Convert inputs to JSON format
 $inputs = @()
 $inputs += [pscustomobject]@{
     name  = "FirstName";
@@ -39,13 +40,13 @@ $inputs += [PSCustomObject]@{
     name  = "Email";
     value = $email;
 }
-
 $input = @{
     inputs = $inputs
 }
 
 $json = $input | ConvertTo-Json
 
+# Execute rule and wait for results
 $results = ExecuteRule -ruleId $ruleId -body $json
 if ($results.correlation_id) {
     Write-Host "Your information has been submitted. Waiting for result"
